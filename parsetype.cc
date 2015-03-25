@@ -1,4 +1,4 @@
-#include "parsetype.h"
+#include "parsetype.hpp"
 
 std::ostream &operator<<(std::ostream &out, const parse_t &obj)
 {
@@ -14,8 +14,8 @@ std::ostream &operator<<(std::ostream &out, const parse_t &obj)
 	case '(':                   op = '#'; break;
 	case 'E': out << "ISEOF";   op = '#'; break;
 	case 'M': out << "MATCH";   op = '#'; break;
-	case 'U': out << "UNIQUE";  op = '#'; break;
-	case 'A': out << "INARRAY"; op = '#'; break;
+	case 'U': out << "UNIQUE";  op = ','; break;
+	case 'A': out << "INARRAY"; op = ','; break;
 	}
 
 	// Special case quote strings
@@ -36,6 +36,12 @@ std::ostream &operator<<(std::ostream &out, const parse_t &obj)
 			for(size_t i=1; i<obj.nargs(); i++) out << ',' << obj.args[i];
 			out << ']';
 		}
+		return out;
+	}
+
+	// Special case variable assignment
+	if ( op=='a' ) {
+		out << obj.args[0] << '=' << obj.args[1];
 		return out;
 	}
 

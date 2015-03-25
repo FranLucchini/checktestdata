@@ -1,21 +1,9 @@
 /*
-   Checktestdata -- check testdata according to specification.
+   Checktestdata -- syntactically check testdata according to a specified grammar.
 
    For detailed information, see libchecktestdata.
 
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software Foundation,
-   Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+   It's licensed under the 2-clause BSD license, see the file COPYING.
 */
 
 #include <cstdlib>
@@ -23,13 +11,16 @@
 #include <fstream>
 #include <getopt.h>
 
-#include "libchecktestdata.h"
+#include "libchecktestdata.hpp"
 
 using namespace std;
+using namespace checktestdata;
 
 #define PROGRAM "checktestdata"
 #define AUTHORS "Jan Kuipers, Jaap Eldering, Tobias Werth"
-#define VERSION CTD_VERSION "/" REVISION
+#ifndef VERSION
+#define VERSION "unknown"
+#endif
 
 const int exit_testdata = 1;
 
@@ -51,12 +42,13 @@ struct option const long_opts[] = {
 
 void version()
 {
-        printf("%s -- written by %s\n",PROGRAM,AUTHORS);
-        printf("Version %s, included with DOMjudge.\n\n",VERSION);
+        printf("%s -- version %s, written by %s\n\n",PROGRAM,VERSION,AUTHORS);
         printf(
-"%s comes with ABSOLUTELY NO WARRANTY.  This is free software, and you\n"
-"are welcome to redistribute it under certain conditions.  See the GNU\n"
-"General Public Licence for details.\n",PROGRAM);
+"Copyright (c) 2008 - 2015 by the checktestdata developers and all\n"
+"respective contributors. All rights reserved.\n"
+"%s comes with ABSOLUTELY NO WARRANTY and is provided \"as is\".\n"
+"You are free to modify and redistribute this program under the conditions\n"
+"of the 2-clause BSD licence, see the file COPYING for more details.\n",PROGRAM);
 }
 
 void usage()
@@ -72,11 +64,13 @@ void usage()
 "  -g, --generate       don't check but generate random testdata\n"
 "  -p, --preset=<name>=<value>[,...]\n"
 "                       preset variable(s) <name> when generating testdata;\n"
-"                         this overrules anything in the program.\n"
+"                         this overrules anything in the program; note that\n"
+"                         string constants have to be double-quoted, after\n"
+"                         shell expansion, e.g. by passing them as '\"text\"'\n"
 "  -d, --debug          enable extra debugging output\n"
 "  -q, --quiet          don't display testdata error messages: test exitcode\n"
 "      --help           display this help and exit\n"
-"      --version        output version information and exit\n"
+"      --version        output version and copyright information and exit\n"
 "\n",progname);
 }
 
@@ -154,7 +148,7 @@ int main(int argc, char **argv)
 	init_checktestdata(prog, options);
 
 	// Parse presets after initialization to have debugging available
-	if ( !parse_preset_list(presets) ) {
+	if ( !presets.empty() && !parse_preset_list(presets) ) {
 		printf("Error parsing preset variable list.\n");
 		exit(exit_failure);
 	}
