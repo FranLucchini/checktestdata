@@ -38,6 +38,8 @@ yum install make g++ boost-devel gmp-devel
 
 To compile checktestdata, run:
 ```
+sudo apt get bisonc++
+sudo apt get flexc++
 sudo apt install automake1.11
 ./bootstrap
 make dist
