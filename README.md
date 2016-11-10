@@ -71,6 +71,63 @@ does not match `1__2` (where the two underscores represent spaces), because the
 first `SPACE` command already matches both, so the second cannot match
 anything.
 
+## Run a test
+
+The general command is
+
+```
+./checktestdata [OPTION]... PROGRAM [TESTDATA]
+```
+Both `PROGRAM` and `TESTDATA` must be a simple text file with no extension. Also, both files must be in the same folder as `checktestdata`.
+
+Example with `prog1` and `test1`:
+
+<dl>
+    <dt><tt>prog1</tt></dt>
+</dl>
+```
+INT(1,100,runs) NEWLINE
+REP(runs)
+  INT(1,100,c) SPACE INT(1,100,d) SPACE INT(0,500,v) NEWLINE
+  REP(v)
+    REGEX("(C|D)") INT(1,100) SPACE
+    REGEX("(C|D)") INT(1,100) NEWLINE
+  END
+END
+```
+
+<dl>
+    <dt><tt>test1</tt></dt>
+</dl>
+```
+ 1
+1 100 3
+C1 C3
+D1 C100
+C42 D1
+
+```
+Then the command is:
+```
+./checktestdata prog1 test1
+```
+
+Output should be:
+```
+^ 1 
+1 100 3
+C1 C3
+D1 C100
+C42 D1
+ 
+
+ERROR: line 1 character 1 of testdata doesn't match INT(1,100,runs)
+
+```
+Now, if we remove the space in `test1` the output should be:
+```
+testdata ok!
+```
 
 ## Copyright & Licencing
 
